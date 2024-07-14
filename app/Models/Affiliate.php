@@ -2,14 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Affiliate extends Model
 {
-    protected $fillable = ['name', 'email'];
+    use HasFactory;
 
-    public function connectCustomers()
+    protected $fillable = ['name', 'email', 'shop_id'];
+
+    public function shop()
     {
-        return $this->hasMany(ConnectCustomer::class);
+        return $this->belongsTo(User::class, 'shop_id');
     }
 }

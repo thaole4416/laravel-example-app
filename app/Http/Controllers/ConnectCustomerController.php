@@ -5,6 +5,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ConnectCustomerRequest;
+use App\Http\Resources\ConnectCustomerResource;
 use App\Services\ConnectCustomerService;
 use Illuminate\Http\Request;
 
@@ -19,8 +20,8 @@ class ConnectCustomerController extends Controller
 
     public function index(Request $request)
     {
-        $connectCustomers = $this->connectCustomerService->getAll($request->all());
-        return response()->json($connectCustomers);
+        $connectCustomers = $this->connectCustomerService->getConnectCustomers($request);
+        return ConnectCustomerResource::collection($connectCustomers);
     }
 
     public function store(ConnectCustomerRequest $request)

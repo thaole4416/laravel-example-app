@@ -1,6 +1,7 @@
 // src/components/ConnectCustomerPopup.js
 
 import React, { useState, useEffect } from "react";
+import api from "../api";
 
 const ConnectCustomerPopup = ({
     isOpen,
@@ -19,29 +20,22 @@ const ConnectCustomerPopup = ({
     }, [isOpen]);
 
     const handleConnect = () => {
-        // Call API to connect customer here
+        const customer = customers.find((c) => c.id === selectedCustomer);
+
         const data = {
             affiliate_id: selectedAffiliate,
             shopify_customer_id: selectedCustomer,
+            customer_name: customer.name,
+            customer_email: customer.email,
         };
 
-        // Example of API call using fetch
-        fetch("http://localhost:8000/api/connect-customer", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
-            .then((response) => response.json())
+        api.post("/connect-customer", data)
             .then((data) => {
-                // Close popup and refresh connect customer data
                 onClose();
                 onConnect();
             })
             .catch((error) => {
                 console.error("Error connecting customer:", error);
-                // Handle error
             });
     };
 
@@ -74,7 +68,7 @@ const ConnectCustomerPopup = ({
                     <option value="">Select a Customer</option>
                     {customers.map((customer) => (
                         <option key={customer.id} value={customer.id}>
-                            {customer.name}
+                            {customer.email}
                         </option>
                     ))}
                 </select>

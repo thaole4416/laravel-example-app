@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
+import api from "../api";
 
-const ConnectCustomerTable = () => {
+const ConnectCustomerTable = ({ onDelete }) => {
     const [connectCustomers, setConnectCustomers] = useState([]);
 
     useEffect(() => {
         // Fetch connect customer data here
-        fetch("http://localhost:8000/api/connect-customer")
-            .then((response) => response.json())
+        api.get("/connect-customer")
             .then((data) => {
-                setConnectCustomers(data);
+                setConnectCustomers(data.data?.data ?? []);
             })
             .catch((error) => {
                 console.error("Error fetching connect customers:", error);
@@ -21,17 +21,28 @@ const ConnectCustomerTable = () => {
             <table>
                 <thead>
                     <tr>
-                        <th>Customer ID</th>
-                        <th>Affiliate ID</th>
-                        {/* Add other headers as needed */}
+                        <th>Connection ID</th>
+                        <th>Customer</th>
+                        <th>Shopify Customer ID</th>
+                        <th>Affiliate</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     {connectCustomers.map((customer) => (
                         <tr key={customer.id}>
+                            <td>{customer.id}</td>
+                            <td>
+                                {customer.customer_name} (
+                                {customer.customer_email})
+                            </td>
                             <td>{customer.shopify_customer_id}</td>
-                            <td>{customer.affiliate_id}</td>
-                            {/* Add other columns as needed */}
+                            <td>{customer.affiliate}</td>
+                            <td>
+                                <button onClick={() => onDelete(customer.id)}>
+                                    Delete
+                                </button>
+                            </td>
                         </tr>
                     ))}
                 </tbody>

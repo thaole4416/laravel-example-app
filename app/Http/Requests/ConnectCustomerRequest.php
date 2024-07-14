@@ -16,6 +16,8 @@ class ConnectCustomerRequest extends FormRequest
         return [
             'affiliate_id' => 'required|exists:affiliates,id',
             'shopify_customer_id' => 'required|string',
+            'customer_name' => 'required|string',
+            'customer_email' => 'required|string',
         ];
     }
 }
