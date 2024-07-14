@@ -15,7 +15,7 @@ class ShopifyGraphQLService
 
     public function searchCustomers($query)
     {
-        $response = $this->client->post('https://your-shopify-store.myshopify.com/admin/api/2023-07/graphql.json', [
+        $response = $this->client->post('https://your-shopify-store.myshopify.com/adminhttp://localhost:8000/api/2023-07/graphql.json', [
             'json' => [
                 'query' => <<<GRAPHQL
                 query {
