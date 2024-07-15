@@ -2,45 +2,33 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ShopifyCustomerResource;
 use Illuminate\Http\Request;
-use App\Services\ShopifyGraphQLService;
+use App\Services\ShopifyCustomerService;
 use Illuminate\Support\Facades\Auth;
 
 class ShopifyCustomerController extends Controller
 {
-    protected $graphQLService;
+    protected $shopifyCustomerService;
 
-    public function __construct(ShopifyGraphQLService $graphQLService)
+    public function __construct(ShopifyCustomerService $shopifyCustomerService)
     {
-        $this->graphQLService = $graphQLService;
+        $this->shopifyCustomerService = $shopifyCustomerService;
     }
 
     public function search(Request $request)
     {
         $user = Auth::user();
 
-        $query = '
-            query ($first: Int, $query: String) {
-                customers(first: $first, query: $query) {
-                    edges {
-                        node {
-                            id
-                            firstName
-                            lastName
-                            email
-                        }
-                    }
-                }
-            }
-        ';
+        $shopName = $user->shop_name;
+        $accessToken = $user->shopify_access_token;
+        $search = $request->input('search', '');
+        $limit = $request->input('limit', 20);
+        $page = $request->input('page', 1);
+        
 
-        $variables = [
-            'first' => $request->input('limit', 10),
-            'query' => $request->input('search', ''),
-        ];
-
-        $result = $this->graphQLService->searchCustomers($user->shop_name, $user->shopify_access_token, $query, $variables);
+        $result = $this->shopifyCustomerService->searchCustomers($shopName, $accessToken, $search, $limit, $page);
    
-        return response()->json($result);
+        return new ShopifyCustomerResource($result);
     }
 }

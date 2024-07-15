@@ -1,7 +1,5 @@
 <?php
 
-// app/Http/Controllers/ConnectCustomerController.php
-
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ConnectCustomerRequest;
@@ -26,13 +24,18 @@ class ConnectCustomerController extends Controller
 
     public function store(ConnectCustomerRequest $request)
     {
-        $connectCustomer = $this->connectCustomerService->create($request->validated());
-        return response()->json($connectCustomer, 201);
+        $data = $request->validated();
+        $connectCustomer = $this->connectCustomerService->createConnectCustomer($data);
+
+        return new ConnectCustomerResource($connectCustomer);
     }
 
     public function destroy($id)
     {
         $this->connectCustomerService->delete($id);
-        return response()->json(['message' => 'Record deleted'], 200);
+
+        $this->connectCustomerService->clearCache();
+
+        return response()->json(['message' => 'Connect Customer deleted successfully']);
     }
 }

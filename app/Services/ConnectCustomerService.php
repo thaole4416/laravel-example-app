@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ConnectCustomer;
 use App\Repositories\ConnectCustomerRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ConnectCustomerService
 {
@@ -14,34 +15,53 @@ class ConnectCustomerService
     {
         $this->connectCustomerRepo = $connectCustomerRepo;
     }
-
-    public function getAll($params = [])
-    {
-        return $this->connectCustomerRepo->getAll($params);
-    }
-
     public function getConnectCustomers(Request $request)
     {
-        $query = ConnectCustomer::query()->with('affiliate');
+        $cacheKey = $this->generateCacheKey($request);
+        $cacheTime = 60;
 
-        if ($search = $request->input('search')) {
-            $query->where('customer_name', 'LIKE', "%{$search}%")
-                ->orWhereHas('affiliate', function ($q) use ($search) {
-                    $q->where('name', 'LIKE', "%{$search}%");
-                });
-        }
+        return Cache::remember($cacheKey, $cacheTime, function () use ($request) {
+            $query = ConnectCustomer::query()->with('affiliate');
 
-        if ($sort = $request->input('sort')) {
-            $query->orderBy($sort, $request->input('direction', 'asc'));
-        }
+            if ($search = $request->input('search')) {
+                $query->where('customer_name', 'LIKE', "%{$search}%")
+                    ->orWhereHas('affiliate', function ($q) use ($search) {
+                        $q->where('name', 'LIKE', "%{$search}%");
+                    });
+            }
 
-        $limit = $request->input('limit', 10);
-        return $query->paginate($limit);
+            if ($sort = $request->input('sort')) {
+                $query->orderBy($sort, $request->input('direction', 'asc'));
+            }
+
+            $limit = $request->input('limit', 10);
+            return $query->paginate($limit);
+        });
     }
 
-    public function create($data)
+    public function createConnectCustomer(array $data)
     {
-        return $this->connectCustomerRepo->create($data);
+        $connectCustomer = $this->connectCustomerRepo->create($data);
+        
+        $this->clearCache();
+
+        return $connectCustomer;
+    }
+
+    public function clearCache()
+    {
+        Cache::tags('connect_customers')->flush();
+    }
+
+    private function generateCacheKey(Request $request)
+    {
+        $search = $request->input('search', '');
+        $sort = $request->input('sort', 'id');
+        $direction = $request->input('direction', 'asc');
+        $limit = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+
+        return "connect_customers_{$search}_{$sort}_{$direction}_{$limit}_{$page}";
     }
 
     public function delete($id)
