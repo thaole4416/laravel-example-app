@@ -1,20 +1,6 @@
-import React, { useState, useEffect } from "react";
-import api from "../api";
+import React from "react";
 
-const ConnectCustomerTable = ({ onDelete }) => {
-    const [connectCustomers, setConnectCustomers] = useState([]);
-
-    useEffect(() => {
-        // Fetch connect customer data here
-        api.get("/connect-customer")
-            .then((data) => {
-                setConnectCustomers(data.data?.data ?? []);
-            })
-            .catch((error) => {
-                console.error("Error fetching connect customers:", error);
-            });
-    }, []);
-
+const ConnectCustomerTable = ({ onDelete, connectCustomers }) => {
     return (
         <div className="connect-customer-table">
             <h2>Connect Customer Table</h2>

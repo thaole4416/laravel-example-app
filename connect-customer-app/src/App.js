@@ -21,7 +21,7 @@ const App = () => {
     const fetchConnectCustomers = async () => {
         try {
             const response = await api.get("/connect-customer");
-            setConnectCustomers(response.data);
+            setConnectCustomers(response.data?.data ?? []);
         } catch (error) {
             console.error(
                 "There was an error fetching the connect customers!",
@@ -69,6 +69,16 @@ const App = () => {
             });
     }, []);
 
+    useEffect(() => {
+        api.get("/connect-customer")
+            .then((data) => {
+                setConnectCustomers(data.data?.data ?? []);
+            })
+            .catch((error) => {
+                console.error("Error fetching connect customers:", error);
+            });
+    }, []);
+
     const handleConnectCustomer = () => {
         setIsOpen(true);
     };
@@ -83,7 +93,10 @@ const App = () => {
                 <ConnectCustomerButton onClick={handleConnectCustomer} />
             </header>
             <main>
-                <ConnectCustomerTable onDelete={handleDelete} />
+                <ConnectCustomerTable
+                    connectCustomers={connectCustomers}
+                    onDelete={handleDelete}
+                />
             </main>
             <ConnectCustomerPopup
                 isOpen={isOpen}
@@ -91,8 +104,7 @@ const App = () => {
                 affiliates={affiliates}
                 customers={customers}
                 onConnect={() => {
-                    // Refresh connect customer table after connecting
-                    // You can implement refresh logic here or trigger a refresh in ConnectCustomerTable component
+                    fetchConnectCustomers();
                 }}
             />
             <ConfirmDialog

@@ -16,13 +16,37 @@ class ShopifyCustomerService
         $this->client = new Client();
     }
 
-    public function searchCustomers($shopName, $accessToken, $search, $limit = 20, $page = 1)
+    public function searchCustomers($shopName, $accessToken, $search, $limit = 20, $page = "")
     {
         $cacheKey = $this->generateCacheKey($shopName, $search, $limit, $page);
         $cacheTime = 60;
-
         return Cache::remember($cacheKey, $cacheTime, function () use ($shopName, $accessToken, $search, $limit, $page) {
-            $query = "query { customers(first: {$limit}, query: \"{$search}\", after: \"{$page}\") { edges { node { id firstName lastName name email } } } }";
+            $query = '
+                query ($first: Int, $query: String, $after: String) {
+                    customers(first: $first, query: $query, after: $after) {
+                        edges {
+                            node {
+                                id
+                                firstName
+                                lastName
+                                email
+                            }
+                        }
+                    }
+                }
+            ';
+
+            $variables = [
+                'first' => $limit,
+            ];
+        
+            if (!empty($search)) {
+                $variables['query'] = $search;
+            }
+        
+            if (!empty($page)) {
+                $variables['after'] = $page;
+            }
 
             $response = $this->client->post("https://$shopName.myshopify.com/admin/api/2024-01/graphql.json", [
                 'headers' => [
@@ -31,6 +55,7 @@ class ShopifyCustomerService
                 ],
                 'json' => [
                     'query' => $query,
+                    'variables' => $variables,
                 ],
             ]);
 
@@ -40,8 +65,14 @@ class ShopifyCustomerService
                 Log::error('GraphQL errors: ' . json_encode($data['errors']));
             }
 
-            $customers = $data['data']['customers']['edges']; 
-    
+            $customers = collect($data['data']['customers']['edges'])->map(function ($edge) {
+                return [
+                    'id' => str_replace('gid://shopify/Customer/', '', $edge['node']['id']),
+                    'name' => $edge['node']['firstName'] . ' ' . $edge['node']['lastName'],
+                    'email' => $edge['node']['email']
+                ];
+            });
+        
             return $customers;
         });
     }

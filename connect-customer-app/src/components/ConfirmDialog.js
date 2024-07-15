@@ -5,9 +5,24 @@ const ConfirmDialog = ({ isOpen, message, onConfirm, onCancel }) => {
 
     return (
         <div className="confirm-dialog">
-            <p>{message}</p>
-            <button onClick={onConfirm}>Confirm</button>
-            <button onClick={onCancel}>Cancel</button>
+            <div className="confirm-dialog-box">
+                <div className="confirm-dialog-title">Confirm Deletion</div>
+                <div className="confirm-dialog-message">{message}</div>
+                <div className="confirm-dialog-buttons">
+                    <button
+                        className="confirm-dialog-button confirm"
+                        onClick={onConfirm}
+                    >
+                        Confirm
+                    </button>
+                    <button
+                        className="confirm-dialog-button cancel"
+                        onClick={onCancel}
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };

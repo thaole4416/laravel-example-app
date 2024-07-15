@@ -14,7 +14,6 @@ const ConnectCustomerPopup = ({
     const [selectedCustomer, setSelectedCustomer] = useState("");
 
     useEffect(() => {
-        // Reset state when popup opens
         setSelectedAffiliate("");
         setSelectedCustomer("");
     }, [isOpen]);
@@ -25,8 +24,8 @@ const ConnectCustomerPopup = ({
         const data = {
             affiliate_id: selectedAffiliate,
             shopify_customer_id: selectedCustomer,
-            customer_name: customer.name,
-            customer_email: customer.email,
+            customer_name: customer?.name,
+            customer_email: customer?.email,
         };
 
         api.post("/connect-customer", data)
@@ -44,9 +43,6 @@ const ConnectCustomerPopup = ({
     return (
         <div className="popup">
             <div className="popup-inner">
-                <button className="close-btn" onClick={onClose}>
-                    Close
-                </button>
                 <h2>Connect Customer</h2>
                 <label>Select Affiliate:</label>
                 <select
@@ -56,7 +52,7 @@ const ConnectCustomerPopup = ({
                     <option value="">Select an Affiliate</option>
                     {affiliates.map((affiliate) => (
                         <option key={affiliate.id} value={affiliate.id}>
-                            {affiliate.name}
+                            {affiliate?.name}
                         </option>
                     ))}
                 </select>
@@ -72,7 +68,20 @@ const ConnectCustomerPopup = ({
                         </option>
                     ))}
                 </select>
-                <button onClick={handleConnect}>Connect</button>
+                <div className="confirm-dialog-buttons">
+                    <button
+                        className="confirm-dialog-button confirm"
+                        onClick={handleConnect}
+                    >
+                        Connect
+                    </button>
+                    <button
+                        className="confirm-dialog-button cancel"
+                        onClick={onClose}
+                    >
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     );
