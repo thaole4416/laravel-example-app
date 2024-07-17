@@ -18,7 +18,7 @@ class AffiliateSeeder extends Seeder
     public function run()
     {
         $faker = Faker::create();
-        $user = User::first(); // Lấy người dùng đầu tiên để làm shop_id
+        $user = User::first();
 
         for ($i = 0; $i < 100; $i++) {
             Affiliate::create([

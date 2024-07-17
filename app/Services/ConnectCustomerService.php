@@ -19,7 +19,6 @@ class ConnectCustomerService
     {
         $cacheKey = $this->generateCacheKey($request);
         $cacheTime = 60;
-
         return Cache::remember($cacheKey, $cacheTime, function () use ($request) {
             $query = ConnectCustomer::query()->with('affiliate');
 

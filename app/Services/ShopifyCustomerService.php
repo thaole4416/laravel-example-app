@@ -65,15 +65,8 @@ class ShopifyCustomerService
                 Log::error('GraphQL errors: ' . json_encode($data['errors']));
             }
 
-            $customers = collect($data['data']['customers']['edges'])->map(function ($edge) {
-                return [
-                    'id' => str_replace('gid://shopify/Customer/', '', $edge['node']['id']),
-                    'name' => $edge['node']['firstName'] . ' ' . $edge['node']['lastName'],
-                    'email' => $edge['node']['email']
-                ];
-            });
-        
-            return $customers;
+            $customers = $data['data']['customers']['edges'];
+            return collect($customers);
         });
     }
 

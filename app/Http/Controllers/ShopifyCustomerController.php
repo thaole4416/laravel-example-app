@@ -26,8 +26,7 @@ class ShopifyCustomerController extends Controller
         $limit = $request->input('limit', 20);
         $page = $request->input('page', '');
         
-
         $customers = $this->shopifyCustomerService->searchCustomers($shopName, $accessToken, $search, $limit, $page);
-        return $customers;
+        return ShopifyCustomerResource::collection($customers);
     }
 }
